@@ -7,6 +7,8 @@ export interface TextRendererConfigPub {
   verticalAlignment?: string;
   size?: number;
   color?: string;
+  isGradient?: boolean;
+  color2?: string;
 
   overrideOpacity?: boolean;
   opacity?: number;
@@ -22,6 +24,8 @@ export default class TextRendererConfig extends SupCore.Data.Base.ComponentConfi
     verticalAlignment: { type: "enum", items: [ "top", "center", "bottom" ], mutable: true },
     size: { type: "integer?", min: 0, mutable: true },
     color: { type: "string?", length: 6, mutable: true },
+    isGradient: { type: "boolean", mutable: true },
+    color2: { type: "string?", length: 6, mutable: true },
 
     overrideOpacity: { type: "boolean", mutable: true },
     opacity: { type: "number?", min: 0, max: 1, mutable: true }
@@ -37,6 +41,8 @@ export default class TextRendererConfig extends SupCore.Data.Base.ComponentConfi
       verticalAlignment: "center",
       size: null,
       color: null,
+      isGradient: false,
+      color2: null,
 
       overrideOpacity: false,
       opacity: null
@@ -44,7 +50,7 @@ export default class TextRendererConfig extends SupCore.Data.Base.ComponentConfi
     return emptyConfig;
   }
 
-  static currentFormatVersion = 2;
+  static currentFormatVersion = 3;
   static migrate(pub: TextRendererConfigPub) {
     if (pub.formatVersion === TextRendererConfig.currentFormatVersion) return false;
 
@@ -64,6 +70,13 @@ export default class TextRendererConfig extends SupCore.Data.Base.ComponentConfi
       pub.opacity = null;
 
       pub.formatVersion = 2;
+    }
+
+    if (pub.formatVersion === 2) {
+      pub.isGradient = false;
+      pub.color2 = "0000ff";
+
+      pub.formatVersion = 3;
     }
 
     return true;

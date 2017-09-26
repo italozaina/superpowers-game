@@ -45,6 +45,16 @@ html
               .inputs
                 input.color.property-color
                 input(type="color").color-picker
+          tr.gradient-color
+            th= t("fontEditor:color2")
+            td
+              .inputs
+                input.color.property-color2
+                input(type="color").color2-picker
+          tr
+            th= t("fontEditor:gradient")
+            td
+              input(type="checkbox",checked).gradient-checkbox.property-isGradient
           tr
             th= t("fontEditor:opacity")
             td

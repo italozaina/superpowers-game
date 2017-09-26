@@ -18,6 +18,8 @@
   "smooth": "Smooth",
   "pixelsPerUnit": "Pixels / Unit",
   "color": "Color",
+  "gradient": "Gradient",
+  "color2": "Secondary Color",
   "opacity": "Opacity",
   "opaque": "Opaque",
   "transparent": "Transparent",

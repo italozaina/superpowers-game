@@ -10,6 +10,8 @@ export default class TextRendererUpdater {
     verticalAlignment: string;
     size?: number;
     color?: string;
+    isGradient?: boolean;
+    color2?: string;
   };
 
   overrideOpacity: boolean;
@@ -27,6 +29,8 @@ export default class TextRendererUpdater {
       verticalAlignment: config.verticalAlignment,
       size: config.size,
       color: config.color,
+      isGradient: config.isGradient,
+      color2: config.color2
     };
 
     this.overrideOpacity = config.overrideOpacity;
@@ -67,7 +71,8 @@ export default class TextRendererUpdater {
       case "alignment":
       case "verticalAlignment":
       case "size":
-      case "color": {
+      case "color":
+      case "color2": {
         (this.options as any)[path] = (value !== "") ? value : null;
         this.textRenderer.setOptions(this.options);
       } break;

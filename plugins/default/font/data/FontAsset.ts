@@ -14,12 +14,14 @@ export interface FontPub {
   formatVersion: number;
 
   isBitmap: boolean;
+  isGradient: boolean;
   filtering: string;
   pixelsPerUnit: number;
 
   font: Buffer;
   size: number;
   color: string;
+  color2: string;
   opacity: number;
 
   bitmap: Buffer;
@@ -33,18 +35,20 @@ export interface FontPub {
 }
 
 export default class FontAsset extends SupCore.Data.Base.Asset {
-  static currentFormatVersion = 2;
+  static currentFormatVersion = 3;
 
   static schema: SupCore.Data.Schema = {
     formatVersion: { type: "integer" },
 
     isBitmap: { type: "boolean", mutable: true},
+    isGradient: { type: "boolean", mutable: true},
     filtering: { type: "enum", items: [ "pixelated", "smooth"], mutable: true },
     pixelsPerUnit: { type: "number", minExcluded: 0, mutable: true },
 
     font: { type: "buffer" },
     size: { type: "number", min: 1, mutable: true },
     color: { type: "string", length: 6, mutable: true },
+    color2: { type: "string", length: 6, mutable: true },
     opacity: { type: "number?", min: 0, max: 1, mutable: true },
 
     bitmap: { type: "buffer" },
@@ -68,12 +72,14 @@ export default class FontAsset extends SupCore.Data.Base.Asset {
       formatVersion: FontAsset.currentFormatVersion,
 
       isBitmap: false,
+      isGradient: false,
       filtering: "pixelated",
       pixelsPerUnit: 20,
 
       font: new Buffer(0),
       size: 32,
       color: "ffffff",
+      color2: "0000ff",
       opacity: null,
 
       bitmap: new Buffer(0),
@@ -111,6 +117,12 @@ export default class FontAsset extends SupCore.Data.Base.Asset {
     if (pub.formatVersion === 1) {
       pub.opacity = null;
       pub.formatVersion = 2;
+    }
+
+    if (pub.formatVersion === 2) {
+      pub.isGradient = false;
+      pub.color2 = "0000ff";
+      pub.formatVersion = 3;
     }
 
     callback(true);

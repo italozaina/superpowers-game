@@ -19,6 +19,8 @@ export default class TextRenderer extends SupEngine.ActorComponent {
     verticalAlignment: string;
     size?: number;
     color?: string;
+    isGradient?: boolean;
+    color2?: string;
   };
   opacity: number;
 
@@ -34,7 +36,7 @@ export default class TextRenderer extends SupEngine.ActorComponent {
     this.font = font;
     this._createMesh();
   }
-  setOptions(options: { alignment: string; verticalAlignment: string; size?: number; color?: string; }) {
+  setOptions(options: { alignment: string; verticalAlignment: string; size?: number; color?: string; isGradient?: boolean; color2?: string; }) {
     if (options.alignment == null) options.alignment = "center";
     if (options.verticalAlignment == null) options.verticalAlignment = "center";
     this.options = options;
@@ -91,7 +93,17 @@ export default class TextRenderer extends SupEngine.ActorComponent {
     canvas.height = height;
 
     const color = (this.options.color != null) ? this.options.color : this.font.color;
-    ctx.fillStyle = `#${color}`;
+    const isGradient = (this.options.isGradient != null) ? this.options.isGradient : this.font.isGradient;
+    const color2 = (this.options.color2 != null) ? this.options.color2 : this.font.color2;
+    const linearGradient = ctx.createLinearGradient(0, 0, 0, fontSize);
+    linearGradient.addColorStop(0, `#${color}`);
+    linearGradient.addColorStop(1, `#${color2}`);
+    if(isGradient){
+      ctx.fillStyle = linearGradient;
+    } else {
+      ctx.fillStyle = `#${color}`;
+    }
+
     ctx.font = `${fontSize}px ${this.font.name}`;
     ctx.textBaseline = "middle";
 

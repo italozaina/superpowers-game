@@ -8,6 +8,9 @@ const ui: {
   allSettings: string[],
   settings: { [name: string]: any; }
   colorPicker: HTMLInputElement,
+  gradientColor: HTMLInputElement,
+  gradientCheckbox: HTMLInputElement,
+  colorPicker2: HTMLInputElement,
   vectorFontTBody: HTMLTableSectionElement,
   bitmapFontTBody: HTMLTableSectionElement
   opacitySelect: HTMLSelectElement;
@@ -43,13 +46,13 @@ function start() {
   fileSelect.addEventListener("change", onFileSelectChange);
   document.querySelector("button.upload").addEventListener("click", () => { fileSelect.click(); });
 
-  ui.allSettings = ["isBitmap", "filtering", "pixelsPerUnit", "size", "color", "opacity", "gridWidth", "gridHeight", "charset", "charsetOffset"];
+  ui.allSettings = ["isBitmap", "isGradient", "filtering", "pixelsPerUnit", "size", "color", "color2", "opacity", "gridWidth", "gridHeight", "charset", "charsetOffset"];
   ui.settings = {};
   ui.allSettings.forEach((setting: string) => {
     const settingObj: any = ui.settings[setting] = document.querySelector(`.property-${setting}`);
     settingObj.dataset["name"] = setting;
 
-    if (setting === "filtering" || setting === "color") {
+    if (setting === "filtering" || setting === "color" || setting === "color2") {
       settingObj.addEventListener("change", (event: any) => {
         data.projectClient.editAsset(SupClient.query.asset, "setProperty", event.target.dataset["name"], event.target.value);
       });
@@ -62,6 +65,11 @@ function start() {
       settingObj.addEventListener("change", (event: any) => {
         const isBitmap = event.target.value === "bitmap";
         data.projectClient.editAsset(SupClient.query.asset, "setProperty", event.target.dataset["name"], isBitmap);
+      });
+    } else if (setting === "isGradient") {
+      settingObj.addEventListener("change", () => {
+        data.projectClient.editAsset(SupClient.query.asset, "setProperty", setting, settingObj.checked);
+        // onGradientCheckbox();
       });
     } else if (setting === "opacity") {
       settingObj.addEventListener("change", (event: any) => {
@@ -77,10 +85,16 @@ function start() {
   });
 
   ui.colorPicker = document.querySelector("input.color-picker") as HTMLInputElement;
+  ui.colorPicker2 = document.querySelector("input.color2-picker") as HTMLInputElement;
   ui.colorPicker.addEventListener("change", (event: any) => {
     data.projectClient.editAsset(SupClient.query.asset, "setProperty", "color", event.target.value.slice(1));
   });
-
+  ui.colorPicker2.addEventListener("change", (event: any) => {
+    data.projectClient.editAsset(SupClient.query.asset, "setProperty", "color2", event.target.value.slice(1));
+  });
+  ui.gradientColor = document.querySelector("tr.gradient-color") as HTMLInputElement;
+  ui.gradientCheckbox = document.querySelector("input.gradient-checkbox") as HTMLInputElement;
+  // ui.gradientCheckbox.addEventListener("change", onGradientCheckbox);
   ui.opacitySelect = <HTMLSelectElement>document.querySelector(".opacity-select");
   ui.opacitySelect.addEventListener("change", (event: any) => {
     data.projectClient.editAsset(SupClient.query.asset, "setProperty", "opacity", event.target.value === "transparent" ? 1 : null);
@@ -127,6 +141,9 @@ function onAssetReceived() {
     data.textUpdater.config_setProperty("text", data.textUpdater.fontAsset.pub.charset);
 
   ui.colorPicker.value = `#${data.textUpdater.fontAsset.pub.color}`;
+  ui.colorPicker2.value = `#${data.textUpdater.fontAsset.pub.color2}`;
+  ui.gradientCheckbox.checked = data.textUpdater.fontAsset.pub.isGradient;
+  // onGradientCheckbox();
 
   if (data.textUpdater.fontAsset.pub.opacity == null) {
     ui.opacitySelect.value = "opaque";
@@ -151,8 +168,11 @@ onEditCommands["setProperty"] = (path: string, value: any) => {
     refreshFontMode();
   } else ui.settings[path].value = value;
 
-  if (path === "color") ui.colorPicker.value = `#${value}`;
-  else if (path === "charset") {
+  if (path === "color") {
+    ui.colorPicker.value = `#${value}`;
+  } else if (path === "color2") {
+    ui.colorPicker2.value = `#${value}`;
+  } else if (path === "charset") {
     data.textUpdater.config_setProperty("text", value != null ? value : noCharsetText);
     ui.settings["charsetOffset"].disabled = value != null;
   }else if (path === "opacity") {
@@ -166,6 +186,15 @@ onEditCommands["setProperty"] = (path: string, value: any) => {
       ui.opacitySlider.value = value;
       data.textUpdater.config_setProperty("opacity", value);
     }
+  }else if (path === "isGradient") {
+      if(value){
+        ui.gradientColor.hidden = false;
+        // console.log("Gradient ON");
+      } else {
+        ui.gradientColor.hidden = true;
+        // console.log("Gradient OFF");
+      }
+      data.textUpdater.config_setProperty("isGradient", value);
   }
 };
 

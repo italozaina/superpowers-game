@@ -18,6 +18,7 @@
   "smooth": "Morbido",
   "pixelsPerUnit": "Pixels / Unità",
   "color": "Colore",
+  "color2": "Secondary Color",  
   "opacity": "Opacità",
   "opaque": "Opaca",
   "transparent": "Transparente",
