@@ -95,11 +95,23 @@ export default class TextRenderer extends SupEngine.ActorComponent {
     const color = (this.options.color != null) ? this.options.color : this.font.color;
     const isGradient = (this.options.isGradient != null) ? this.options.isGradient : this.font.isGradient;
     const color2 = (this.options.color2 != null) ? this.options.color2 : this.font.color2;
-    const linearGradient = ctx.createLinearGradient(0, 0, 0, fontSize);
-    linearGradient.addColorStop(0, `#${color}`);
+    const gradientHeight = heightWithoutBorder / texts.length;
+    const linearGradient = ctx.createLinearGradient(0, 0, 0, gradientHeight);
+    linearGradient.addColorStop(0, `#${color2}`);
+    linearGradient.addColorStop(0.3, `#${color2}`);
+    linearGradient.addColorStop(0.3, `#${color}`);
     linearGradient.addColorStop(1, `#${color2}`);
+
     if(isGradient){
-      ctx.fillStyle = linearGradient;
+      // Make a temporary canvas to be the template for a pattern
+      let pc = document.createElement("canvas");
+      let px = pc.getContext("2d");
+      pc.width = 1;
+      pc.height = gradientHeight;
+      px.fillStyle = linearGradient;
+      px.fillRect(0, 0, 1, gradientHeight);
+      let pattern = ctx.createPattern(pc, "repeat");
+      ctx.fillStyle = pattern;
     } else {
       ctx.fillStyle = `#${color}`;
     }
@@ -228,4 +240,22 @@ export default class TextRenderer extends SupEngine.ActorComponent {
   }
 
   setIsLayerActive(active: boolean) { for (const threeMesh of this.threeMeshes) threeMesh.visible = active; }
+
+  GetGradientSvg(topColor: string, bottomColor: string, height: number) {
+      return "data:image/svg+xml;base64," + this.GetBase64EncodedBackground(topColor, bottomColor, height) + ";";
+  }
+
+  GetBase64EncodedBackground(topColor: string, bottomColor: string, height: number) {
+      let svg = "";
+      svg += "<?xml version=\"1.0\" ?>";
+      svg += "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"20px\" height=\"" + height + "px\" viewBox=\"0 0 1 1\" preserveAspectRatio=\"none\">";
+      svg += "  <linearGradient id=\"grad-ucgg-generated\" gradientUnits=\"userSpaceOnUse\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\">";
+      svg += "    <stop offset=\"0%\" stop-color=\"#" + topColor + "\" stop-opacity=\"1\"/>";
+      svg += "    <stop offset=\"100%\" stop-color=\"#" + bottomColor + "\" stop-opacity=\"1\"/>";
+      svg += "  </linearGradient>";
+      svg += "  <rect x=\"0\" y=\"0\" width=\"20\" height=\"" + height + "\" fill=\"url(#grad-ucgg-generated)\" />";
+      svg += "</svg>";
+      let base64 = window.btoa(svg);
+      return base64;
+  }
 }
